@@ -58,6 +58,11 @@ definitions:
     type:
     - number
     - "null"
+  distance:
+    description: distant from current user of the demand in kilometers
+    type:
+    - number
+    - "null"
   address_name:
     description: address name of user
     type:
@@ -108,6 +113,20 @@ definitions:
     type:
     - string
     - "null"
+  uploaded_image_url:
+    description: uploaded image url of user
+    type:
+    - string
+    - "null"
+  facebook_image_url:
+    description: facebook image url of user
+    type:
+    - string
+    - "null"
+  image_url:
+    description: image url of user calculated from uploaded_image_url, facebook_image_url or gravatar
+    type:
+    - string
   accepted_terms:
     description: wheter or not user has accepted Tem Açúcar terms of use
     type:
@@ -166,11 +185,21 @@ links:
   href: "/users/{(%2Fschemata%2Fuser%23%2Fdefinitions%2Fidentity)}"
   method: GET
   rel: self
+  targetSchema:
+    anyOf:
+    - "$ref": "/schemata/user"
+    - "$ref": "/schemata/error"
   title: Info
 - description: List existing users.
   href: "/users"
   method: GET
   rel: instances
+  targetSchema:
+    anyOf:
+    - type: array
+      items:
+        "$ref": "/schemata/user"
+    - "$ref": "/schemata/error"
   title: List
 - description: Update an existing user.
   href: "/users/{(%2Fschemata%2Fuser%23%2Fdefinitions%2Fidentity)}"
@@ -211,6 +240,10 @@ links:
         "$ref": "/schemata/user#/definitions/address_postal_code"
       address_complement:
         "$ref": "/schemata/user#/definitions/address_complement"
+      uploaded_image_url:
+        "$ref": "/schemata/user#/definitions/uploaded_image_url"
+      facebook_image_url:
+        "$ref": "/schemata/user#/definitions/facebook_image_url"
       accepted_terms:
         "$ref": "/schemata/user#/definitions/accepted_terms"
       reviewed_email:
@@ -237,6 +270,8 @@ properties:
     "$ref": "/schemata/user#/definitions/latitude"
   longitude:
     "$ref": "/schemata/user#/definitions/longitude"
+  distance:
+    "$ref": "/schemata/user#/definitions/distance"
   address_name:
     "$ref": "/schemata/user#/definitions/address_name"
   address_thoroughfare:
@@ -257,6 +292,12 @@ properties:
     "$ref": "/schemata/user#/definitions/address_postal_code"
   address_complement:
     "$ref": "/schemata/user#/definitions/address_complement"
+  uploaded_image_url:
+    "$ref": "/schemata/user#/definitions/uploaded_image_url"
+  facebook_image_url:
+    "$ref": "/schemata/user#/definitions/facebook_image_url"
+  image_url:
+    "$ref": "/schemata/user#/definitions/image_url"
   accepted_terms:
     "$ref": "/schemata/user#/definitions/accepted_terms"
   reviewed_email:
@@ -271,6 +312,7 @@ required:
 - id
 - first_name
 - last_name
+- image_url
 - created_at
 - updated_at
 additionalProperties: false

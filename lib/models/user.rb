@@ -5,9 +5,12 @@ class User < Sequel::Model
 
   plugin :timestamps, update_on_create: true
   plugin :auto_validations, not_null: :presence
+  plugin :geocoder
+  reverse_geocoded_by :latitude, :longitude
 
   one_to_many :tokens
   one_to_many :authentications
+  one_to_many :demands
 
   def self.from_facebook(facebook)
     user = where(facebook_uid: facebook['id']).first
@@ -24,6 +27,39 @@ class User < Sequel::Model
       user.first_name = facebook['first_name'] || 'Nome'
       user.last_name = facebook['last_name'] || 'Sobrenome'
     end
+  end
+
+  def neighbors
+    User.near([self.latitude, self.longitude], 1, units: :km)
+  end
+
+  def neighborhood_demands
+    Demand
+      .where("id NOT IN (SELECT demand_id FROM refusals WHERE user_id = '#{self.id}')")
+      .where("user_id <> '#{self.id}'")
+      .with_state(:active)
+      .near([self.latitude, self.longitude], 1, units: :km, order: false)
+      .order(:distance, Sequel.desc(:created_at))
+  end
+
+  def demands_with_transactions
+    Demand
+      .where("id IN (SELECT DISTINCT demand_id FROM transactions INNER JOIN messages ON messages.transaction_id = transactions.id INNER JOIN demands ON transactions.demand_id = demands.id WHERE messages.user_id = '#{self.id}' OR demands.user_id = '#{self.id}')")
+      .reverse(:updated_at)
+  end
+
+  def image_url
+    uploaded_image_url || facebook_image_url || facebook_picture_url || gravatar_url
+  end
+
+  def facebook_picture_url
+    return unless self.facebook_uid
+    "http://graph.facebook.com/#{self.facebook_uid}/picture?type=normal"
+  end
+
+  def gravatar_url
+    gravatar_id = Digest::MD5.hexdigest(self.email.downcase)
+    "http://gravatar.com/avatar/#{gravatar_id}.png?s=128&d=mm"
   end
 
   def password
