@@ -27,20 +27,13 @@ class Demand < Sequel::Model
       transition [:sending, :active] => :canceled
     end
 
-    event :reactivate do
-      transition [:flagged, :canceled] => :active
-    end
-
     event :complete do
       transition [:sending, :active] => :completed
     end
-  end
 
-  def users_with_messages
-    User
-      .where("id IN (SELECT DISTINCT user_id FROM messages WHERE demand_id = '#{self.id}')")
-      .near([self.latitude, self.longitude], 100000, units: :km, order: false)
-      .order(:distance, Sequel.desc(:updated_at))
+    event :reactivate do
+      transition [:flagged, :completed, :canceled] => :active
+    end
   end
 
 end

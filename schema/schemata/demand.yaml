@@ -26,6 +26,7 @@ definitions:
     - active
     - canceled
     - completed
+    - flagged
     type:
     - string
   name:
@@ -53,6 +54,11 @@ definitions:
     type:
     - number
     - "null"
+  transactions:
+    description: transactions of the demand
+    readOnly: true
+    type:
+    - array
   limit:
     description: maximum of results to be returned when listing demands, '10' if not informed
     type:
@@ -68,6 +74,9 @@ definitions:
     enum:
     - neighborhood
     - transactions
+    - user
+    - admin
+    - flagged
     type:
     - string
     - "null"
@@ -127,11 +136,55 @@ links:
         "$ref": "/schemata/demand"  
     - "$ref": "/schemata/error"
   title: List
+- description: Complete a demand
+  href: "/demands/{(%2Fschemata%2Fuser%23%2Fdefinitions%2Fidentity)}/complete"
+  method: PUT
+  rel: update
+  schema:
+    additionalProperties: false
+    properties:
+    type:
+    - object
+  targetSchema:
+    anyOf:
+    - "$ref": "/schemata/demand"
+    - "$ref": "/schemata/error"
+  title: Complete
+- description: Cancel a demand
+  href: "/demands/{(%2Fschemata%2Fuser%23%2Fdefinitions%2Fidentity)}/cancel"
+  method: PUT
+  rel: update
+  schema:
+    additionalProperties: false
+    properties:
+    type:
+    - object
+  targetSchema:
+    anyOf:
+    - "$ref": "/schemata/demand"
+    - "$ref": "/schemata/error"
+  title: Cancel
+- description: Reactivate a demand
+  href: "/demands/{(%2Fschemata%2Fuser%23%2Fdefinitions%2Fidentity)}/reactivate"
+  method: PUT
+  rel: update
+  schema:
+    additionalProperties: false
+    properties:
+    type:
+    - object
+  targetSchema:
+    anyOf:
+    - "$ref": "/schemata/demand"
+    - "$ref": "/schemata/error"
+  title: Reactivate
 properties:
   id:
     "$ref": "/schemata/demand#/definitions/id"
   user:
     "$ref": "/schemata/demand#/definitions/user"
+  transactions:
+    "$ref": "/schemata/demand#/definitions/transactions"
   state:
     "$ref": "/schemata/demand#/definitions/state"
   name:
@@ -157,6 +210,5 @@ required:
 - name
 - description
 - created_at
-- updated_at
 additionalProperties: false
 id: schemata/demand
